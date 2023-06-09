@@ -28,7 +28,18 @@ async function run() {
     await client.connect();
     
     const instructorsCollection = client.db("milSchooldb").collection("instructors");
+    const userCollection=client.db("milSchooldb").collection("users")
+
+
+    // post user data
+     app.post('/users',async(req, res)=>{
+        const user=req.body;
+        console.log("new user",user)
+        const result=await userCollection.insertOne(user)
+        res.send(result)
+     })
      
+    // get instructors data
     app.get('/instructors', async(req, res)=>{
         const result= await instructorsCollection.find().toArray()
         res.send(result)
