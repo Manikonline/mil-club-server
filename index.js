@@ -29,7 +29,7 @@ async function run() {
     
     const instructorsCollection = client.db("milSchooldb").collection("instructors");
     const userCollection=client.db("milSchooldb").collection("users")
-
+    const classesCollection=client.db("milSchooldb").collection("classes")
 
     // post user data
      app.post('/users',async(req, res)=>{
@@ -38,10 +38,16 @@ async function run() {
         const result=await userCollection.insertOne(user)
         res.send(result)
      })
+
+    //  get classes data
+    app.get('/classes',async(req, res)=>{
+      const result = await classesCollection.find().toArray()
+      res.send(result)
+    })
      
     // get instructors data
     app.get('/instructors', async(req, res)=>{
-        const result= await instructorsCollection.find().toArray()
+        const result= await instructorsCollection.find().sort({student:req.query.useNumber}).collation({locale:"en_US",numericOrdering:true}).toArray()
         res.send(result)
     })
 
