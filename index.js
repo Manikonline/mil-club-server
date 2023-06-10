@@ -35,19 +35,30 @@ async function run() {
      app.post('/users',async(req, res)=>{
         const user=req.body;
         console.log("new user",user)
+        const query={email:user.email}
+        const existingUser=await userCollection.findOne(query);
+        if(existingUser){
+          return res.send({message:'user already exists'})
+        }
         const result=await userCollection.insertOne(user)
         res.send(result)
      })
 
+    //  get user data
+    app.get('/users',async(req, res)=>{
+      const result = await userCollection.find().toArray()
+      res.send(result)
+    })
+
     //  get classes data
     app.get('/classes',async(req, res)=>{
-      const result = await classesCollection.find().toArray()
+      const result = await classesCollection.find().sort({student:-1}).collation({locale:"en_US",numericOrdering:true}).toArray()
       res.send(result)
     })
      
     // get instructors data
     app.get('/instructors', async(req, res)=>{
-        const result= await instructorsCollection.find().sort({student:req.query.useNumber}).collation({locale:"en_US",numericOrdering:true}).toArray()
+        const result= await instructorsCollection.find().toArray()
         res.send(result)
     })
 
