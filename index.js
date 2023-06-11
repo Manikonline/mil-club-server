@@ -51,18 +51,18 @@ async function run() {
     // JWT
     app.post('/jwt',(req, res)=>{
       const user=req.body;
-      const token= jwt.sign(user,process.env.ACCESS_TOKEN_SECRET, {expiresIn:'1h'})
+      const token= jwt.sign(user,process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
       res.send({token})
     })
 
     // post user data
-     app.post('/users',verifyJWT, async(req, res)=>{
+     app.post('/users', async(req, res)=>{
         const user=req.body;
         console.log("new user",user)
-        const decodedEmail=req.decoded.email;
-        if(email !== decodedEmail){
-          return res.status(403).send({error:true,message:'forbidden access'})
-        }
+        // const decodedEmail=req.decoded.email;
+        // if(email !== decodedEmail){
+        //   return res.status(403).send({error:true,message:'forbidden access'})
+        // }
         const query={email:user.email}
         const existingUser=await userCollection.findOne(query);
         if(existingUser){
@@ -71,6 +71,38 @@ async function run() {
         const result=await userCollection.insertOne(user)
         res.send(result)
      })
+
+    // find admin
+    app.get('/users/admin/:email', async(req, res)=>{
+      const email=req.params.email;
+      // if(req.decoded.email != email){
+      //   res.send({admin:false})
+      // }
+      const query={email: email};
+      const user= await userCollection.findOne(query);
+      const result={admin:user?.role ==='admin'};
+      res.send(result)
+    })
+
+    // get specifice user by email
+
+     app.get('/users',async(req, res)=>{
+      const result = await userCollection.find({ email: req.query.email}).toArray()
+      res.send(result)
+ 
+  })/
+  //  app.get('/users/:email', async(req, res)=>{
+  //   const email = req.params.email
+  //   const query={email:email}
+  //   const result =await userCollection.findOne(query).toArray();
+  //   res.send(result)
+  //  })
+  
+     //  get user data
+     app.get('/allusers',async(req, res)=>{
+      const result = await userCollection.find().toArray()
+      res.send(result)
+    })
 
     //  patch
     app.patch('/users/admin/:id',async(req,res)=>{
@@ -97,9 +129,11 @@ async function run() {
       res.send(result)
     })
 
-    //  get user data
-    app.get('/users',async(req, res)=>{
-      const result = await userCollection.find().toArray()
+  //  post classes
+    app.post('/classes',async(req, res)=>{
+      const classe=req.body;
+      console.log(classe)
+      const result =await classesCollection.insertOne(classe)
       res.send(result)
     })
 
