@@ -84,27 +84,46 @@ async function run() {
       res.send(result)
     })
 
+   
+
+
+
     // get specifice user by email
 
      app.get('/users',async(req, res)=>{
       const result = await userCollection.find({ email: req.query.email}).toArray()
       res.send(result)
  
-  })/
-  //  app.get('/users/:email', async(req, res)=>{
-  //   const email = req.params.email
-  //   const query={email:email}
-  //   const result =await userCollection.findOne(query).toArray();
-  //   res.send(result)
-  //  })
+  })
+
   
      //  get user data
-     app.get('/allusers',async(req, res)=>{
+     app.get('/getinstructor',async(req, res)=>{
+     const query={role:'instructor'}
+      const result = await userCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    // get classes data for specific role
+    app.get('/spacificclasses',async(req,res)=>{
+      const query={role:'approved'}
+      const result=await classesCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.get('/allusers',async(req, res)=>{
       const result = await userCollection.find().toArray()
       res.send(result)
     })
 
-    //  patch
+    // get classes
+    app.get('/getclasses',async(req, res)=>{
+      const result=await classesCollection.find().toArray()
+      res.send(result)
+
+    })
+
+    //  patch user role changed to admin
     app.patch('/users/admin/:id',async(req,res)=>{
       const id=req.params.id;
       const filter={_id:new ObjectId(id)};
@@ -116,7 +135,8 @@ async function run() {
       const result=await userCollection.updateOne(filter, updateDoc)
       res.send(result)
     })
-
+    
+    //  patch user role changed to admin
     app.patch('/users/instructor/:id',async(req,res)=>{
       const id=req.params.id;
       const filter={_id:new ObjectId(id)};
@@ -126,6 +146,32 @@ async function run() {
         }
       };
       const result=await userCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
+    // patch classes role changed to approved
+    app.patch('/classes/approved/:id',async(req,res)=>{
+      const id=req.params.id;
+      const filter={_id:new ObjectId(id)};
+      const updateDoc={
+        $set:{
+          role:"approved"
+        }
+      };
+      const result=await classesCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
+    // patch classes role changed to approved
+    app.patch('/classes/denied/:id',async(req, res)=>{
+      const id=req.params.id;
+      const filter={_id:new ObjectId(id)}
+      const updateDoc={
+        $set:{
+          role:"denied"
+        }
+      };
+      const result=await classesCollection.updateOne(filter, updateDoc)
       res.send(result)
     })
 
