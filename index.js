@@ -47,6 +47,7 @@ async function run() {
     const instructorsCollection = client.db("milSchooldb").collection("instructors");
     const userCollection=client.db("milSchooldb").collection("users")
     const classesCollection=client.db("milSchooldb").collection("classes")
+    const selectedClassCollection=client.db("milSchooldb").collection("usersClass")
 
     // JWT
     app.post('/jwt',(req, res)=>{
@@ -71,6 +72,15 @@ async function run() {
         const result=await userCollection.insertOne(user)
         res.send(result)
      })
+
+    //  post selected classes
+    app.post('/selectedClass',async(req, res)=>{
+      const classes=req.body;
+      console.log(classes);
+      const result= await selectedClassCollection.insertOne(classes)
+      res.send(result)
+
+    })
 
     // find admin
     app.get('/users/admin/:email', async(req, res)=>{
@@ -104,6 +114,20 @@ async function run() {
       res.send(result)
     })
 
+
+      // app.get('/add',async(req,res)=>{
+      //       const filter={};
+      //       const option = { upsert: true }
+      //       const updatedDoc = {
+      //           $set: {
+      //              classStatus:false
+      //           }
+      //       }
+      //       const result = await classesCollection.updateMany(filter, updatedDoc, option);
+      //       res.send(result);
+      //   }); 
+
+
     // get classes data for specific role
     app.get('/spacificclasses',async(req,res)=>{
       const query={role:'approved'}
@@ -121,6 +145,19 @@ async function run() {
       const result=await classesCollection.find().toArray()
       res.send(result)
 
+    })
+
+    // get usersClasses data
+    app.get('/userclasses',async(req,res)=>{
+      const result = await selectedClassCollection.find({email: req.query.email}).toArray()
+      res.send(result)
+    })
+
+    app.delete('/userclasses/:id',async(req, res)=>{
+      const id = req.params.id;
+      const query={_id:new ObjectId(id)}
+      const result =await selectedClassCollection.deleteOne(query)
+      res.send(result)
     })
 
     //  patch user role changed to admin
