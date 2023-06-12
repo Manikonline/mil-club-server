@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config()
+const stripe =require('stripe')(process.env.PAYMENT_SECRET_KEY)
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -48,6 +49,7 @@ async function run() {
     const userCollection=client.db("milSchooldb").collection("users")
     const classesCollection=client.db("milSchooldb").collection("classes")
     const selectedClassCollection=client.db("milSchooldb").collection("usersClass")
+    const paymentsCollection=client.db("milSchooldb").collection("payments")
 
     // JWT
     app.post('/jwt',(req, res)=>{
@@ -230,6 +232,33 @@ async function run() {
     app.get('/instructors', async(req, res)=>{
         const result= await instructorsCollection.find().toArray()
         res.send(result)
+    })
+
+    // create peyment intent
+    app.post('/create-payment-intent',async(req, res)=>{
+      const{ price }=req.body;
+      const amount= price * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount:amount,
+        currency:'usd',
+        payment_method_types:['card']
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      })
+    })
+
+    // paymet related api
+    app.post('/payments',async(req,res)=>{
+      const payment = req.body;
+      const result =await paymentsCollection.insertOne(payment);
+      res.send(result)
+    })
+
+    // get payment data
+    app.get('/allpayments',async(req,res)=>{
+      const result = await paymentsCollection.find({email: req.query.email}).toArray()
+      res.send(result)
     })
 
     // Send a ping to confirm a successful connection
