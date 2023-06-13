@@ -245,26 +245,10 @@ async function run() {
       const result = await instructorsCollection.find().toArray()
       res.send(result)
     })
-    // app.put('/myToyUpdate/:id',async(req, res)=>{
-    //   const id=req.params.id;
-    //   const filter={_id: new ObjectId(id)}
-    //   const options={upsert:true};
-    //   const updatedToy=req.body
-    //   console.log(updatedToy)
-    //   const myToyUpdate={
-    //     $set:{
-    //       price:updatedToy.price,
-    //       available_quantity:updatedToy.available_quantity,
-    //       description:updatedToy.description
 
-    //     }
-    //   }
-    //   const result=await productCollection.updateOne(filter,myToyUpdate ,options)
-    //   res.send(result)
-    // })
 
     // put classes data
-    app.put('/updatedclass/:id', async (req, res) => {
+    app.patch('/updatedclass/:id', async (req, res) => {
       const id = req.params.id;
       console.log(id)
       const filter = { _id: new ObjectId(id) };
